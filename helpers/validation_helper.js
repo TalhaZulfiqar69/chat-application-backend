@@ -55,30 +55,10 @@ const registrationValidation = [
     email,
     password,
     confirmPassword,
-    check('firstName')
+    check('name')
         .notEmpty()
         .withMessage((value, { req }) => {
-            return 'First name is required.';
-        }),
-    check('lastName')
-        .notEmpty()
-        .withMessage((value, { req }) => {
-            return 'Last name is required.';
-        }),
-    check('city')
-        .notEmpty()
-        .withMessage((value, { req }) => {
-            return 'City is required.';
-        }),
-    check('province')
-        .notEmpty()
-        .withMessage((value, { req }) => {
-            return 'Province field is required.';
-        }),
-    check('userType')
-        .notEmpty()
-        .withMessage((value, { req }) => {
-            return 'User type is required.';
+            return 'Name is required.';
         }),
 ];
 
@@ -109,7 +89,42 @@ const loginValidation = [
         }),
 ];
 
-module.exports = [
+
+const forgetPasswordVAlidation = [
+    check('email')
+        .notEmpty()
+        .withMessage((value, { req }) => {
+            return 'Email is required.';
+        })
+        .isEmail()
+        .withMessage((value, { req }) => {
+            return 'Invalid email addredd.';
+        })
+        .trim()
+        .normalizeEmail()
+        .custom((value, { req }) => {
+            return models.User.findOne({ where: { email: value } }).then((user) => {
+                if (!user) {
+                    throw new Error('This email does not belong to any account.');
+                }
+                return true;
+            });
+        }),
+];
+
+const resetPasswordVAlidation = [
+    password,
+    confirmPassword,
+    // check('oldPassword')
+    //     .notEmpty()
+    //     .withMessage((value, { req }) => {
+    //         return 'Old password is required.';
+    //     })
+];
+
+module.exports = {
     registrationValidation,
     loginValidation,
-]
+    forgetPasswordVAlidation,
+    resetPasswordVAlidation
+}
